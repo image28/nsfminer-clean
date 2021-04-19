@@ -1,3 +1,22 @@
+# Image28
+
+<UL>
+   <LI> Few small fixes</LI>
+   <LI> Removed the build systems (cmake,hunter,cable) for compile.sh</LI>
+   <LI>Less static linking</LI>
+   <LI>No git submodules</LI>
+</UL>
+<BR>
+Compile with <BR>
+git clone https://github.com/image28/nsfminer-clean.git<BR>
+cd nsfminer-clean/build<BR>
+./compile.sh<BR>
+run with<BR>
+cd nsfminer<BR>
+./nsfminer --help<BR>
+<BR>
+   
+
 # nsfminer (no stinkin' fees)
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
