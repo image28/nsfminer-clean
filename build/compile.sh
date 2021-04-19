@@ -78,4 +78,5 @@ done
 
 # Compile the final binary
 $CXX $CXXFLAGS main.cpp.o EthashAux.cpp.o Farm.cpp.o Miner.cpp.o CLMiner.cpp.o CUDAMiner.cpp.o ethash_cuda_miner_kernel.cu.o PoolURI.cpp.o PoolManager.cpp.o SimulateClient.cpp.o EthStratumClient.cpp.o EthGetworkClient.cpp.o wraphelper.cpp.o wrapnvml.cpp.o wrapadl.cpp.o wrapamdsysfs.cpp.o CommonData.cpp.o FixedHash.cpp.o Log.cpp.o Worker.cpp.o libnsfminer-buildinfo.o -o nsfminer $LIBS
+rm *.{o,h}
 strip nsfminer

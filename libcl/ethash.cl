@@ -39,6 +39,8 @@ uint amd_bitalign(uint src0, uint src1, uint src2)
     ((uint)(((((ulong)(src0)) << 32) | (ulong)(src1)) >> ((src2)&31)))
 #endif
 
+#define EndianSwap(n) (rotate(n & 0x00FF00FF, 24U)|(rotate(n, 8U) & 0x00FF00FF)
+
 #if WORKSIZE % 4 != 0
 #error "WORKSIZE has to be a multiple of 4"
 #endif
@@ -205,12 +207,15 @@ static __constant uint2 const Keccak_f1600_RC[24] = {
 
 #define KECCAK_PROCESS(st, in_size, out_size)    \
     do                                           \
-    {                                            \
-        for (int r = 0; r < 24; ++r)             \
+    {      										 \
+    	int r=0;		                         \
+    											 \
+        do           							 \
         {                                        \
-            int os = (r < 23 ? 25 : (out_size)); \
+            int os= (r < 23 ? 25 : (out_size));  \
             KECCAKF_1600_RND(st, r, os);         \
-        }                                        \
+            r++;								 \
+        }while(r<24);                            \
     } while (0)
 
 
@@ -281,19 +286,22 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     if (g_output->abort)
         return;
 
-    const uint thread_id = get_local_id(0) % 4;
-    const uint hash_id = get_local_id(0) / 4;
+	
+    const uint thread_id = get_local_id(0) & 3;
+    const uint hash_id = get_local_id(0) >> 2;
     const uint gid = get_global_id(0);
+    
 #ifdef SPLIT_DAG
     __global const ulong8* _g_dag2[2] = {_g_dag0, _g_dag1};
 #endif
 
-    __local compute_hash_share sharebuf[WORKSIZE / 4];
+    __local compute_hash_share sharebuf[WORKSIZE >> 2];
     __local uint buffer[WORKSIZE];
     __local compute_hash_share* const share = sharebuf + hash_id;
 
     // sha3_512(header .. nonce)
     uint2 state[25];
+    //state=calloc(sizeof(unit2),25);
     state[0] = g_header[0];
     state[1] = g_header[1];
     state[2] = g_header[2];
@@ -301,25 +309,26 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     state[4] = as_uint2(start_nonce + gid);
     state[5] = as_uint2(0x0000000000000001UL);
     state[6] = (uint2)(0);
-    state[7] = (uint2)(0);
+    state[7] = state[6];
     state[8] = as_uint2(0x8000000000000000UL);
-    state[9] = (uint2)(0);
-    state[10] = (uint2)(0);
-    state[11] = (uint2)(0);
-    state[12] = (uint2)(0);
-    state[13] = (uint2)(0);
-    state[14] = (uint2)(0);
-    state[15] = (uint2)(0);
-    state[16] = (uint2)(0);
-    state[17] = (uint2)(0);
-    state[18] = (uint2)(0);
-    state[19] = (uint2)(0);
-    state[20] = (uint2)(0);
-    state[21] = (uint2)(0);
-    state[22] = (uint2)(0);
-    state[23] = (uint2)(0);
-    state[24] = (uint2)(0);
+    state[9] = state[6];
+    state[10] = state[6];
+    state[11] = state[6];
+    state[12] = state[6];
+    state[13] = state[6];
+    state[14] = state[6];
+    state[15] = state[6];
+    state[16] = state[6];
+    state[17] = state[6];
+    state[18] = state[6];
+    state[19] = state[6];
+    state[20] = state[6];
+    state[21] = state[6];
+    state[22] = state[6];
+    state[23] = state[6];
+    state[24] = state[6];
 
+	#pragma unroll 1
     for (int pass = 0; pass < 2; ++pass)
     {
         KECCAK_PROCESS(state, select(5, 12, pass != 0), select(8, 1, pass != 0));
@@ -329,7 +338,7 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
         uint init0;
         uint8 mix;
 
-#pragma unroll 1
+		
         for (uint tid = 0; tid < 4; tid++)
         {
             if (tid == thread_id)
@@ -351,7 +360,7 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
 
             barrier(CLK_LOCAL_MEM_FENCE);
 
-#pragma unroll 1
+			#pragma unroll 1
             for (uint a = 0; a < ACCESSES; a += 8)
             {
                 const uint lane_idx = 4 * hash_id + a / 8 % 4;
@@ -373,27 +382,28 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
                 state[11] = share->uint2s[3];
             }
 
-            barrier(CLK_LOCAL_MEM_FENCE);
+            //barrier(CLK_LOCAL_MEM_FENCE);
         }
 
         state[12] = as_uint2(0x0000000000000001UL);
         state[13] = (uint2)(0);
-        state[14] = (uint2)(0);
-        state[15] = (uint2)(0);
+        state[14] = state[13];
+        state[15] = state[13];
         state[16] = as_uint2(0x8000000000000000UL);
-        state[17] = (uint2)(0);
-        state[18] = (uint2)(0);
-        state[19] = (uint2)(0);
-        state[20] = (uint2)(0);
-        state[21] = (uint2)(0);
-        state[22] = (uint2)(0);
-        state[23] = (uint2)(0);
-        state[24] = (uint2)(0);
+        state[17] = state[13];
+        state[18] = state[13];
+        state[19] = state[13];
+        state[20] = state[13];
+        state[21] = state[13];
+        state[22] = state[13];
+        state[23] = state[13];
+        state[24] = state[13];
     }
 
     if (get_local_id(0) == 0)
         atomic_inc(&g_output->hashCount);
 
+	// weird
     if (as_ulong(as_uchar8(state[0]).s76543210) <= target)
     {
         atomic_inc(&g_output->abort);
@@ -412,19 +422,35 @@ typedef union _Node
 static void SHA3_512(uint2* s)
 {
     uint2 st[25];
-
-    for (uint i = 0; i < 8; ++i)
+	uint i = 0; 
+	
+	//__attribute__((opencl_unroll_hint(8)))
+    do
+    {
         st[i] = s[i];
-
+        i++;
+	}while(i<8);
+	
     st[8] = (uint2)(0x00000001, 0x80000000);
 
-    for (uint i = 9; i != 25; ++i)
+	i=9;
+	//__attribute__((opencl_unroll_hint(16)))	
+    do
+    {
         st[i] = (uint2)(0);
+        i++;
+    }while(i != 25);
 
     KECCAK_PROCESS(st, 8, 8);
 
-    for (uint i = 0; i < 8; ++i)
+	i=0;
+	//__attribute__((opencl_unroll_hint(8)))
+    //for (uint i = 0; i < 8; ++i)
+    do
+    {
         s[i] = st[i];
+        i++;
+    }while (i<8);
 }
 
 __kernel void GenerateDAG(uint start, __global const uint16* _Cache, __global uint16* _DAG0,
@@ -448,6 +474,7 @@ __kernel void GenerateDAG(uint start, __global const uint16* _Cache, __global ui
 
     dagNode[thread_id] = DAGNode;
     barrier(CLK_LOCAL_MEM_FENCE);
+    
     for (uint i = 0; i < 256; ++i)
     {
         uint ParentIdx = fnv(NodeIdx ^ i, dagNode[thread_id].dwords[i & 15]) % light_size;
