@@ -240,7 +240,14 @@ CLMiner::~CLMiner() {
 
 // NOTE: The following struct must match the one defined in
 // ethash.cl
-struct SearchResults {
+/*struct __attribute__((packed)) __attribute__((aligned(32))) SearchResults
+{
+    uint count;
+    uint hashCount;
+    volatile ushort abort;
+    ushort gid[MAX_OUTPUTS];
+};*/
+struct __attribute__((packed)) __attribute__((aligned(128))) SearchResults {
     uint32_t count;
     uint32_t hashCount;
     uint32_t abort;
