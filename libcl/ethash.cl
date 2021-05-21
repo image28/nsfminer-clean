@@ -635,7 +635,7 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
 
 	uchar a=0;
 	uchar x=0;
-	uchar tid=0;
+	char tid=0;
     uchar lane=0;
 	uint init0;
     uint8 mix;
@@ -647,12 +647,15 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     
     for(tid=0; tid < 4; tid++)
 	{
-    	if (tid == thread_id)
+		//barrier(CLK_LOCAL_MEM_FENCE); // :(
+		if ( thread_id == tid-1 )
+			*(convert2+2) = sharebuf[hash_id].ulong4s[0];
+
+   		if (tid == thread_id)
 			sharebuf[hash_id].ulong8s[0]=*(convert);
 		
 		barrier(CLK_LOCAL_MEM_FENCE);
-	//for(tid=0; tid < 4; tid++)
-	//{
+	
 		mix = sharebuf[hash_id].uint8s[thread_id&1];
 		init0 = sharebuf[hash_id].uints[0];
 	
@@ -671,15 +674,13 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
 		}while(a < ACCESSES);
 	
 		barrier(CLK_LOCAL_MEM_FENCE);
-	
 		sharebuf[hash_id].uint2s[thread_id] = (uint2)(fnv_reduce(mix.lo), fnv_reduce(mix.hi));
 		barrier(CLK_LOCAL_MEM_FENCE);
-	
-	
-		if (tid == thread_id)
-			*(convert2+2) = sharebuf[hash_id].ulong4s[0];	
 	}
 	
+	if ( thread_id == 3 )
+		*(convert2+2) = sharebuf[hash_id].ulong4s[0];
+		
     state[12] = as_uint2(0x0000000000000001UL);
     state[13] = (uint2)(0);
     state[14] = state[13];
@@ -813,4 +814,3 @@ __kernel void GenerateDAG(uint start, __global const uint16* _Cache, __global ui
 #endif
 
 }
-
