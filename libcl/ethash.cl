@@ -523,9 +523,9 @@ static void SHA3_512(uint2* s)
 	ulong8 *result=&s;
 
 	*(convert)=*(result);
-	*(convert+1)=*(convert);
-	*(convert+2)=*(convert);
-	state[8] = (uint2)(0x00000001, 0x80000000);
+	*(convert+1)=(ulong8)(0);
+	*(convert+2)=*(convert+1);
+   	 state[8] = (uint2)(0x00000001, 0x80000000);
 	state[24] = state[23];
 
 	KECCAK_PROCESS(state, 8, 8);
