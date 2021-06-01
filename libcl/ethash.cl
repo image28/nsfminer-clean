@@ -520,17 +520,17 @@ static void SHA3_512(uint2* s)
 {
 	uint2 state[25];
 	ulong8 *convert=&state;
-	ulong8 *result=&s;
+	ulong8 *result=s;
 
 	*(convert)=*(result);
 	*(convert+1)=(ulong8)(0);
-	*(convert+2)=*(convert+1);
-   	 state[8] = (uint2)(0x00000001, 0x80000000);
-	state[24] = state[23];
+	*(convert+2)=(ulong8)(0);
+	state[8] = (uint2)(0x00000001, 0x80000000);
+	state[24] = (uint2)(0);
 
 	KECCAK_PROCESS(state, 8, 8);
 
-	*(result)=(ulong8)(0);
+	*(result)=*(convert);
 }
 
 __kernel void GenerateDAG(uint start, __global const uint16* _Cache, __global uint16* _DAG0,
