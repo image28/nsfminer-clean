@@ -152,38 +152,38 @@ static __constant uint2 const Keccak_f1600_RC[24] = {
         uint2 m6 = a[1];                                                   \
         a[0] = bitselect(a[0] ^ a[2], a[0], a[1]);                         \
         a[0] ^= as_uint2(Keccak_f1600_RC[i]);                              \
-	a[1] = bitselect(a[1] ^ a[3], a[1], a[2]);                     \
-	a[2] = bitselect(a[2] ^ a[4], a[2], a[3]);                     \
-	a[3] = bitselect(a[3] ^ m5, a[3], a[4]);                       \
-	a[4] = bitselect(a[4] ^ m6, a[4], m5);                         \
-	m5 = a[5];                                                 \
-	m6 = a[6];                                                 \
-	a[5] = bitselect(a[5] ^ a[7], a[5], a[6]);                 \
-	a[6] = bitselect(a[6] ^ a[8], a[6], a[7]);                 \
-	a[7] = bitselect(a[7] ^ a[9], a[7], a[8]);                 \
-	a[8] = bitselect(a[8] ^ m5, a[8], a[9]);                   \
-	a[9] = bitselect(a[9] ^ m6, a[9], m5);                     \
-	m5 = a[10];                                            \
-	m6 = a[11];                                            \
-	a[10] = bitselect(a[10] ^ a[12], a[10], a[11]);        \
-	a[11] = bitselect(a[11] ^ a[13], a[11], a[12]);        \
-	a[12] = bitselect(a[12] ^ a[14], a[12], a[13]);        \
-	a[13] = bitselect(a[13] ^ m5, a[13], a[14]);           \
-	a[14] = bitselect(a[14] ^ m6, a[14], m5);              \
-	m5 = a[15];                                            \
-	m6 = a[16];                                            \
-	a[15] = bitselect(a[15] ^ a[17], a[15], a[16]);        \
-	a[16] = bitselect(a[16] ^ a[18], a[16], a[17]);        \
-	a[17] = bitselect(a[17] ^ a[19], a[17], a[18]);        \
-	a[18] = bitselect(a[18] ^ m5, a[18], a[19]);           \
-	a[19] = bitselect(a[19] ^ m6, a[19], m5);              \
-	m5 = a[20];                                            \
-	m6 = a[21];                                            \
-	a[20] = bitselect(a[20] ^ a[22], a[20], a[21]);        \
-	a[21] = bitselect(a[21] ^ a[23], a[21], a[22]);        \
-	a[22] = bitselect(a[22] ^ a[24], a[22], a[23]);        \
-	a[23] = bitselect(a[23] ^ m5, a[23], a[24]);           \
-	a[24] = bitselect(a[24] ^ m6, a[24], m5);              \
+		a[1] = bitselect(a[1] ^ a[3], a[1], a[2]);                     \
+		a[2] = bitselect(a[2] ^ a[4], a[2], a[3]);                     \
+		a[3] = bitselect(a[3] ^ m5, a[3], a[4]);                       \
+		a[4] = bitselect(a[4] ^ m6, a[4], m5);                         \
+		m5 = a[5];                                                 \
+		m6 = a[6];                                                 \
+		a[5] = bitselect(a[5] ^ a[7], a[5], a[6]);                 \
+		a[6] = bitselect(a[6] ^ a[8], a[6], a[7]);                 \
+		a[7] = bitselect(a[7] ^ a[9], a[7], a[8]);                 \
+		a[8] = bitselect(a[8] ^ m5, a[8], a[9]);                   \
+		a[9] = bitselect(a[9] ^ m6, a[9], m5);                     \
+		m5 = a[10];                                            \
+		m6 = a[11];                                            \
+		a[10] = bitselect(a[10] ^ a[12], a[10], a[11]);        \
+		a[11] = bitselect(a[11] ^ a[13], a[11], a[12]);        \
+		a[12] = bitselect(a[12] ^ a[14], a[12], a[13]);        \
+		a[13] = bitselect(a[13] ^ m5, a[13], a[14]);           \
+		a[14] = bitselect(a[14] ^ m6, a[14], m5);              \
+		m5 = a[15];                                            \
+		m6 = a[16];                                            \
+		a[15] = bitselect(a[15] ^ a[17], a[15], a[16]);        \
+		a[16] = bitselect(a[16] ^ a[18], a[16], a[17]);        \
+		a[17] = bitselect(a[17] ^ a[19], a[17], a[18]);        \
+		a[18] = bitselect(a[18] ^ m5, a[18], a[19]);           \
+		a[19] = bitselect(a[19] ^ m6, a[19], m5);              \
+		m5 = a[20];                                            \
+		m6 = a[21];                                            \
+		a[20] = bitselect(a[20] ^ a[22], a[20], a[21]);        \
+		a[21] = bitselect(a[21] ^ a[23], a[21], a[22]);        \
+		a[22] = bitselect(a[22] ^ a[24], a[22], a[23]);        \
+		a[23] = bitselect(a[23] ^ m5, a[23], a[24]);           \
+		a[24] = bitselect(a[24] ^ m6, a[24], m5);              \
     } while (0)
 
 #define KECCAKF_1600_RND_eq1(a, i)                                       \
@@ -302,44 +302,44 @@ static __constant uint2 const Keccak_f1600_RC[24] = {
         a[23] ^= m2;                                                       \
                                                                            \
         a[4] ^= m3;                                                        \
-        a[9] ^= m3;                                                \
-        a[14] ^= m3;                                               \
-        a[19] ^= m3;                                               \
-        a[24] ^= m3;                                               \
-                                                                   \
-        a[1] = ROTL64_2(a[6], 12);                                 \
-        a[6] = ROTL64_1(a[9], 20);                                 \
-        a[9] = ROTL64_2(a[22], 29);                                \
-        a[22] = ROTL64_2(a[14], 7);                                \
-        a[14] = ROTL64_1(a[20], 18);                               \
-        a[20] = ROTL64_2(a[2], 30);                                \
-        a[2] = ROTL64_2(a[12], 11);                                \
-        a[12] = ROTL64_1(a[13], 25);                               \
-        a[13] = ROTL64_1(a[19], 8);                                \
-        a[19] = ROTL64_2(a[23], 24);                               \
-        a[23] = ROTL64_2(a[15], 9);                                \
-        a[15] = ROTL64_1(a[4], 27);                                \
-        a[4] = ROTL64_1(a[24], 14);                                \
-        a[24] = ROTL64_1(a[21], 2);                                \
-        a[21] = ROTL64_2(a[8], 23);                                \
-        a[8] = ROTL64_2(a[16], 13);                                \
-        a[16] = ROTL64_2(a[5], 4);                                 \
-        a[5] = ROTL64_1(a[3], 28);                                 \
-        a[3] = ROTL64_1(a[18], 21);                                \
-        a[18] = ROTL64_1(a[17], 15);                               \
-        a[17] = ROTL64_1(a[11], 10);                               \
-        a[11] = ROTL64_1(a[7], 6);                                 \
-        a[7] = ROTL64_1(a[10], 3);                                 \
-        a[10] = ROTL64_1(tmp, 1);                                  \
-                                                                   \
-        uint2 m5 = a[0];                                           \
-        uint2 m6 = a[1];                                           \
-        a[0] = bitselect(a[0] ^ a[2], a[0], a[1]);                 \
-        a[0] ^= as_uint2(Keccak_f1600_RC[i]);                      \
-        a[1] = bitselect(a[1] ^ a[3], a[1], a[2]);                 \
-        a[2] = bitselect(a[2] ^ a[4], a[2], a[3]);                 \
-        a[3] = bitselect(a[3] ^ m5, a[3], a[4]);                   \
-        a[4] = bitselect(a[4] ^ m6, a[4], m5);                     \
+        a[9] ^= m3;                                                        \
+        a[14] ^= m3;                                                       \
+        a[19] ^= m3;                                                       \
+        a[24] ^= m3;                                                       \
+                                                                           \
+        a[1] = ROTL64_2(a[6], 12);                                         \
+        a[6] = ROTL64_1(a[9], 20);                                         \
+        a[9] = ROTL64_2(a[22], 29);                                        \
+        a[22] = ROTL64_2(a[14], 7);                                        \
+        a[14] = ROTL64_1(a[20], 18);                                       \
+        a[20] = ROTL64_2(a[2], 30);                                        \
+        a[2] = ROTL64_2(a[12], 11);                                        \
+        a[12] = ROTL64_1(a[13], 25);                                       \
+        a[13] = ROTL64_1(a[19], 8);                                        \
+        a[19] = ROTL64_2(a[23], 24);                                       \
+        a[23] = ROTL64_2(a[15], 9);                                        \
+        a[15] = ROTL64_1(a[4], 27);                                        \
+        a[4] = ROTL64_1(a[24], 14);                                        \
+        a[24] = ROTL64_1(a[21], 2);                                        \
+        a[21] = ROTL64_2(a[8], 23);                                        \
+        a[8] = ROTL64_2(a[16], 13);                                        \
+        a[16] = ROTL64_2(a[5], 4);                                         \
+        a[5] = ROTL64_1(a[3], 28);                                         \
+        a[3] = ROTL64_1(a[18], 21);                                        \
+        a[18] = ROTL64_1(a[17], 15);                                       \
+        a[17] = ROTL64_1(a[11], 10);                                       \
+        a[11] = ROTL64_1(a[7], 6);                                         \
+        a[7] = ROTL64_1(a[10], 3);                                         \
+        a[10] = ROTL64_1(tmp, 1);                                          \
+                                                                           \
+        uint2 m5 = a[0];                                                   \
+        uint2 m6 = a[1];                                                   \
+        a[0] = bitselect(a[0] ^ a[2], a[0], a[1]);                         \
+        a[0] ^= as_uint2(Keccak_f1600_RC[i]);                              \
+        a[1] = bitselect(a[1] ^ a[3], a[1], a[2]);                     \
+        a[2] = bitselect(a[2] ^ a[4], a[2], a[3]);                     \
+        a[3] = bitselect(a[3] ^ m5, a[3], a[4]);                       \
+        a[4] = bitselect(a[4] ^ m6, a[4], m5);                         \
         m5 = a[5];                                                 \
         m6 = a[6];                                                 \
         a[5] = bitselect(a[5] ^ a[7], a[5], a[6]);                 \
@@ -350,20 +350,20 @@ static __constant uint2 const Keccak_f1600_RC[24] = {
     }while(0)
     
     
-#define KECCAK_PROCESS(st, in_size, out_size)   \
-do                                      	\
-{   						\
-	uchar r=0;				\
-	do           				\
-	{     					\
-		KECCAKF_1600_RND_gt8(st, r);    \
-		r++;				\
-	}while(r<23);   			\
-	if ( out_size == 1 )			\
-		KECCAKF_1600_RND_eq1(st, r); 	\
-  	  else					\
-		KECCAKF_1600_RND_eq8(st, r);	\
-} while (0)
+#define KECCAK_PROCESS(st, in_size, out_size)     \
+    do                                           \
+    {   										 \
+        uchar r=0;								 \
+        do           							 \
+        {     									 \
+	            KECCAKF_1600_RND_gt8(st, r);     \
+            r++;								 \
+        }while(r<23);   						 \
+        if ( out_size == 1 )					 \
+	        KECCAKF_1600_RND_eq1(st, r); 		 \
+	    else							  		 \
+	        KECCAKF_1600_RND_eq8(st, r); 		 \
+    } while (0)
 
 #define fnv(x, y) ((x)*FNV_PRIME ^ (y))
 #define fnv_reduce(v) fnv(fnv(fnv(v.x, v.y), v.z), v.w)
@@ -379,8 +379,7 @@ typedef union
     ulong8 ulong8s[2];   // 128 / sizeof(ulong8)]; 128/(8*8)
 } hash128_t;
 
-
-typedef union
+/*typedef union
 {
 	
     ulong8 ulong8s[1];
@@ -391,15 +390,15 @@ typedef union
     uint16 uint16s[1];
     ulong ulongs[8];
     uint uints[16];
-} compute_hash_share;
+} compute_hash_share;*/
 
-#define MIX(x)								\
-do									\
-{   									\
-	*(local_buffer) = fnv(init0 ^ (a + x), *(imix+x)) % dag_size;   \
-	mix = fnv(mix, g_dag0[buffer[lane_idx]].uint8s[thread_id]);	\
-	mem_fence(CLK_LOCAL_MEM_FENCE);					\
-} while (0)
+#define MIX(x)															\
+    do																	\
+    {   																\
+    	*(local_buffer) = fnv(init0 ^ (a + x), *(imix+x)) % dag_size;   \
+		mix = fnv(mix, g_dag0[buffer[lane_idx]].uint8s[thread_id]);		\
+        mem_fence(CLK_LOCAL_MEM_FENCE);									\
+    } while (0)
 
 // NOTE: This struct must match the one defined in CLMiner.cpp
 struct __attribute__((packed)) __attribute__((aligned(128))) SearchResults
@@ -415,54 +414,65 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     __global ulong8 const* _g_dag0, __global ulong8 const* _g_dag1, uint dag_size,
     ulong start_nonce, ulong target)
 {
-	if (g_output->abort)
-		return;
+    if (g_output->abort)
+        return;
 
-	const ushort local_id = (ushort)get_local_id(0);
-	const uchar thread_id = (uchar)(local_id & 3);
-	const uchar hash_id = (uchar)(local_id >> 2);
-	const uchar hash_id2 = (uchar)(hash_id << 2);
-	const uint gid = get_global_id(0);
-	__global hash128_t const* g_dag0 = (__global hash128_t const*)_g_dag0; 
-	__local compute_hash_share sharebuf[WORKSIZE >> 2];
-	__local uint buffer[WORKSIZE];
-	__local uint *local_buffer=&buffer[local_id];
-	uint2 state[25]; 
-	ulong8 *convert=&state; 
-	ulong4 *convert2=&state; 
+	const ushort local_id = (ushort)get_local_id(0); // 4-WORKSIZE!?
+    const uchar thread_id = (uchar)(local_id & 3);
+    const uchar hash_id = (uchar)(local_id >> 2);
+  	const uchar hash_id2 = (uchar)(hash_id << 2);
+    const uint gid = get_global_id(0);
+    __global hash128_t const* g_dag0 = (__global hash128_t const*)_g_dag0; 
+	//__global uint8 const* g_dag_uint8 = _g_dag0; 
+    
+    //__local compute_hash_share sharebuf[WORKSIZE >> 2]; // (128/4)*128???? 
+    __local uint sharebuf[(WORKSIZE*16) >> 2]; // all gpu's should be using 32bit or 16 bit if they can here.
+    											// with the exception of the Intel Xeon Phi series, and the intel
+    											// ?? A something... the cards in the 5G towers....
+    __local uint buffer[WORKSIZE];
+    __local uint *local_buffer=&buffer[local_id];
+    //__local compute_hash_share* const share = sharebuf + hash_id;
+    __local ulong8 *ulong8_buffer=&sharebuf[hash_id*16];
+    __local ulong4 *ulong4_buffer=&sharebuf[hash_id*16];
+   	__local uint8 *uint8_buffer=(uint)&sharebuf[hash_id*16];
+   	__local uint2 *uint2_buffer=(uint)&sharebuf[hash_id*16];
+    __local uint *uint_buffer=(uint)&sharebuf[hash_id*16];
+    
+    uint2 state[25]; // 4*2*25
+	ulong8 *convert=&state; // 8*8 0-8,8-16,16-24
+	ulong4 *convert2=&state; // 4*8 0-4,4-8,8-12,12-16,16-20,20-24
 	uchar a,x,lane;
 	char tid=0;
 	uint init0;
-	uint8 mix;
-	uint *imix=&mix;
+    uint8 mix;
+    uint *imix=&mix;
 
 	*(convert)=(ulong8)(0);
 	*(convert+1)=*(convert);
 	*(convert+2)=*(convert);
 	state[0] = g_header[0];
-	state[1] = g_header[1];
-	state[2] = g_header[2];
-	state[3] = g_header[3];
-	state[4] = as_uint2(start_nonce + gid);
-	state[5] = as_uint2(0x0000000000000001UL);
-	state[8] = as_uint2(0x8000000000000000UL);
+    state[1] = g_header[1];
+    state[2] = g_header[2];
+    state[3] = g_header[3];
+    state[4] = as_uint2(start_nonce + gid);
+    state[5] = as_uint2(0x0000000000000001UL);
+    state[8] = as_uint2(0x8000000000000000UL);
 	state[24] = state[23];
 	
-	KECCAK_PROCESS(state, 5, 8);
-	
-	for(tid=0; tid < 4; tid++)
+    KECCAK_PROCESS(state, 5, 8);
+    
+    for(tid=0; tid < 4; tid++)
 	{
-		barrier(CLK_LOCAL_MEM_FENCE); 
+		barrier(CLK_LOCAL_MEM_FENCE);
 		if ( thread_id == tid-1 )
-			*(convert2+2) = sharebuf[hash_id].ulong4s[0];
-
-   		if (tid == thread_id)
-			sharebuf[hash_id].ulong8s[0]=*(convert);
+			*(convert2+2) = *(ulong4_buffer); 
 		
+   		if (tid == thread_id)
+	   		*(ulong8_buffer)=*(convert);
 		barrier(CLK_LOCAL_MEM_FENCE);
 	
-		mix = sharebuf[hash_id].uint8s[thread_id&1];
-		init0 = sharebuf[hash_id].uints[0];
+		mix = *(uint8_buffer+(thread_id&1));
+		init0 = *(uint_buffer);
 	
 		a=0;lane=0;
 		barrier(CLK_LOCAL_MEM_FENCE);
@@ -479,20 +489,19 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
 		}while(a < ACCESSES);
 	
 		barrier(CLK_LOCAL_MEM_FENCE);
-		sharebuf[hash_id].uint2s[thread_id] = (uint2)(fnv_reduce(mix.lo), fnv_reduce(mix.hi));
-		
+		*(uint2_buffer+thread_id) = (uint2)(fnv_reduce(mix.lo), fnv_reduce(mix.hi));
 	}
 	barrier(CLK_LOCAL_MEM_FENCE);
 	if ( thread_id == 3 )
-		*(convert2+2) = sharebuf[hash_id].ulong4s[0];
-
+		*(convert2+2) = *(ulong4_buffer); 
+	
 	*(convert2+3)=(ulong4)(0);	
 	*(convert2+4)=*(convert2+3);
 	*(convert2+5)=*(convert2+3);
-	state[12] = as_uint2(0x0000000000000001UL);
-	state[16] = as_uint2(0x8000000000000000UL);
-	state[24] = state[23];
-
+    state[12] = as_uint2(0x0000000000000001UL);
+    state[16] = as_uint2(0x8000000000000000UL);
+    state[24] = state[23];
+    
 	KECCAK_PROCESS(state, 12, 1);
 
     if (get_local_id(0) == 0)
@@ -518,17 +527,17 @@ typedef union _Node
 
 static void SHA3_512(uint2* s)
 {
-	uint2 state[25];
-	ulong8 *convert=&state;
-	ulong8 *result=s;
+   	uint2 state[25];
+   	ulong8 *convert=&state;
+   	ulong8 *result=s;
 
 	*(convert)=*(result);
 	*(convert+1)=(ulong8)(0);
 	*(convert+2)=(ulong8)(0);
-	state[8] = (uint2)(0x00000001, 0x80000000);
+    state[8] = (uint2)(0x00000001, 0x80000000);
 	state[24] = (uint2)(0);
-
-	KECCAK_PROCESS(state, 8, 8);
+	
+    KECCAK_PROCESS(state, 8, 8);
 
 	*(result)=*(convert);
 }
