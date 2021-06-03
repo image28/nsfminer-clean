@@ -385,6 +385,18 @@ struct __attribute__((packed)) __attribute__((aligned(128))) SearchResults
     volatile uint abort;
     uint gid[MAX_OUTPUTS];
 };
+/*
+struct __attribute__((packed)) __attribute__((aligned(2048))) buffers
+{
+    uint sharebuf[256]; // (WORKSIZE*16) >> 2]; // one bad line here got to go! 128*16=2048/4=512 256*16=4096/4=1024
+    uint buffer[64]; // one bad line here got to go! 64*16=1024 63*16=1008 + 16=1024
+    uint *local_buffer;
+    uint *uint_buffer; // ( read buffer )
+  	uint2 *uint2_buffer; // (write buffer 16 bytes ) 
+   	uint8 *uint8_buffer; // (read buffer 32 bytes ) 
+   	ulong4 *ulong4_buffer; // (read buffer 32 bytes ) 
+   	ulong8 *ulong8_buffer; // (write buffer 64 bytes )
+}*/
 
 __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     __global struct SearchResults* g_output, __constant uint2 const* g_header,
@@ -403,23 +415,23 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     const uint gid = get_global_id(0);
 	__global uint8 const* g_dag_uint = (__global uint8 const*)_g_dag0; 
     
-    __local uint sharebuf[256]; 
-    __local uint buffer[64]; 
+    __local uint sharebuf[1024]; 
+    __local uint buffer[256]; 
     __local uint *local_buffer=&buffer[ids[0]];
     __local uint *uint_buffer=(uint)&sharebuf[ids[2]*16]; // ( read buffer )
   	__local uint2 *uint2_buffer=(uint)&sharebuf[ids[2]*16]; // (write buffer 16 bytes ) 
    	__local uint8 *uint8_buffer=(uint)&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
+   	__local uint2 state[25]; // 4*2*25
+   	__local uint8 mix;
+    __local uint *imix=&mix;
+    __local uint init0;
     __local ulong4 *ulong4_buffer=&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
+    __local ulong4 *convert2=&state; // 4*8 0-4,4-8,8-12,12-16,16-20,20-24
+  	__local ulong8 *convert=&state; // 8*8 0-8,8-16,16-24
    	__local ulong8 *ulong8_buffer=&sharebuf[ids[2]*16]; // (write buffer 64 bytes )
-    
-    uint2 state[25]; // 4*2*25
-	ulong8 *convert=&state; // 8*8 0-8,8-16,16-24
-	ulong4 *convert2=&state; // 4*8 0-4,4-8,8-12,12-16,16-20,20-24
+	
 	uchar a,x,lane;
 	char tid=0;
-	uint init0;
-    uint8 mix;
-    uint *imix=&mix;
 
 	*(convert)=(ulong8)(0);
 	*(convert+1)=*(convert);
