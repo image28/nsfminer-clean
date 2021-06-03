@@ -368,16 +368,6 @@ static __constant uint2 const Keccak_f1600_RC[24] = {
 #define fnv(x, y) ((x)*FNV_PRIME ^ (y))
 #define fnv_reduce(v) fnv(fnv(fnv(v.x, v.y), v.z), v.w)
 
-typedef union
-{
-    uint uints[32];   //128 / sizeof(uint)]; 128/4
-    ulong ulongs[16]; //128 / sizeof(ulong)]; 128/8
-    uint2 uint2s[16];  //128 / sizeof(uint2)]; 128/(4*2)
-    uint4 uint4s[8];  // 128 / sizeof(uint4)]; 128/(4*4)
-    uint8 uint8s[4]; //128 / sizeof(uint8)]; 128/(8*4)
-    uint16 uint16s[2]; //128 / sizeof(uint16)]; 128 / (4*16)
-    ulong8 ulong8s[2];   // 128 / sizeof(ulong8)]; 128/(8*8)
-} hash128_t;
 
 #define MIX(x)															\
     do																	\
@@ -411,17 +401,16 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
   	(ushort)(get_local_id(0) >> 2 << 2)};
   	
     const uint gid = get_global_id(0);
-    //__global hash128_t const* g_dag0 = (__global hash128_t const*)_g_dag0; 
 	__global uint8 const* g_dag_uint = (__global uint8 const*)_g_dag0; 
     
-    __local uint sharebuf[(WORKSIZE*16) >> 2]; // Looking into if these buffers need to be so large
-    __local uint buffer[WORKSIZE>>2]; // which will offer the biggest speed boost, free'ing up local memory.
+    __local uint sharebuf[256]; 
+    __local uint buffer[64]; 
     __local uint *local_buffer=&buffer[ids[0]];
-    __local ulong8 *ulong8_buffer=&sharebuf[ids[2]*16]; // (write buffer 64 bytes )
-    __local ulong4 *ulong4_buffer=&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
-   	__local uint8 *uint8_buffer=(uint)&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
-   	__local uint2 *uint2_buffer=(uint)&sharebuf[ids[2]*16]; // (write buffer 16 bytes ) 
     __local uint *uint_buffer=(uint)&sharebuf[ids[2]*16]; // ( read buffer )
+  	__local uint2 *uint2_buffer=(uint)&sharebuf[ids[2]*16]; // (write buffer 16 bytes ) 
+   	__local uint8 *uint8_buffer=(uint)&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
+    __local ulong4 *ulong4_buffer=&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
+   	__local ulong8 *ulong8_buffer=&sharebuf[ids[2]*16]; // (write buffer 64 bytes )
     
     uint2 state[25]; // 4*2*25
 	ulong8 *convert=&state; // 8*8 0-8,8-16,16-24
