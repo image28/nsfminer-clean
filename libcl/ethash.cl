@@ -379,24 +379,11 @@ typedef union
     ulong8 ulong8s[2];   // 128 / sizeof(ulong8)]; 128/(8*8)
 } hash128_t;
 
-/*typedef union
-{
-	
-    ulong8 ulong8s[1];
-    ulong4 ulong4s[2];
-    uint2 uint2s[8];
-    uint4 uint4s[4];
-    uint8 uint8s[2];
-    uint16 uint16s[1];
-    ulong ulongs[8];
-    uint uints[16];
-} compute_hash_share;*/
-
 #define MIX(x)															\
     do																	\
     {   																\
     	*(local_buffer) = fnv(init0 ^ (a + x), *(imix+x)) % dag_size;   \
-		mix = fnv(mix, g_dag0[buffer[lane_idx]].uint8s[thread_id]);		\
+		mix = fnv(mix, g_dag_uint[(buffer[lane_idx]*4)+ids[1]]);		\
         mem_fence(CLK_LOCAL_MEM_FENCE);									\
     } while (0)
 
@@ -417,56 +404,59 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
     if (g_output->abort)
         return;
 
-	const ushort local_id = (ushort)get_local_id(0); // 4-WORKSIZE!?
-	const uchar thread_id = (uchar)(local_id & 3);
-	const uchar hash_id = (uchar)(local_id >> 2);
-	const uchar hash_id2 = (uchar)(hash_id << 2);
-	const uint gid = get_global_id(0);
-	__global hash128_t const* g_dag0 = (__global hash128_t const*)_g_dag0; 
-	
-	__local uint sharebuf[(WORKSIZE*16) >> 2];
-	__local uint buffer[WORKSIZE];
-	__local uint *local_buffer=&buffer[local_id];
-	__local ulong8 *ulong8_buffer=&sharebuf[hash_id*16];
-	__local ulong4 *ulong4_buffer=&sharebuf[hash_id*16];
-	__local uint8 *uint8_buffer=(uint)&sharebuf[hash_id*16];
-	__local uint2 *uint2_buffer=(uint)&sharebuf[hash_id*16];
-	__local uint *uint_buffer=(uint)&sharebuf[hash_id*16];
+	const ushort ids[] = {				\
+	(ushort) get_local_id(0),			\   
+    (ushort)(get_local_id(0) & 3),		\
+    (ushort)(get_local_id(0) >> 2),		\
+  	(ushort)(get_local_id(0) >> 2 << 2)};
+  	
+    const uint gid = get_global_id(0);
+    //__global hash128_t const* g_dag0 = (__global hash128_t const*)_g_dag0; 
+	__global uint8 const* g_dag_uint = (__global uint8 const*)_g_dag0; 
     
-	uint2 state[25];
-	ulong8 *convert=&state; 
-	ulong4 *convert2=&state; 
+    __local uint sharebuf[(WORKSIZE*16) >> 2]; // Looking into if these buffers need to be so large
+    __local uint buffer[WORKSIZE>>2]; // which will offer the biggest speed boost, free'ing up local memory.
+    __local uint *local_buffer=&buffer[ids[0]];
+    __local ulong8 *ulong8_buffer=&sharebuf[ids[2]*16]; // (write buffer 64 bytes )
+    __local ulong4 *ulong4_buffer=&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
+   	__local uint8 *uint8_buffer=(uint)&sharebuf[ids[2]*16]; // (read buffer 32 bytes ) 
+   	__local uint2 *uint2_buffer=(uint)&sharebuf[ids[2]*16]; // (write buffer 16 bytes ) 
+    __local uint *uint_buffer=(uint)&sharebuf[ids[2]*16]; // ( read buffer )
+    
+    uint2 state[25]; // 4*2*25
+	ulong8 *convert=&state; // 8*8 0-8,8-16,16-24
+	ulong4 *convert2=&state; // 4*8 0-4,4-8,8-12,12-16,16-20,20-24
 	uchar a,x,lane;
 	char tid=0;
 	uint init0;
-	uint8 mix;
-	uint *imix=&mix;
+    uint8 mix;
+    uint *imix=&mix;
 
 	*(convert)=(ulong8)(0);
 	*(convert+1)=*(convert);
 	*(convert+2)=*(convert);
 	state[0] = g_header[0];
-	state[1] = g_header[1];
-	state[2] = g_header[2];
-	state[3] = g_header[3];
-	state[4] = as_uint2(start_nonce + gid);
-	state[5] = as_uint2(0x0000000000000001UL);
-	state[8] = as_uint2(0x8000000000000000UL);
+    state[1] = g_header[1];
+    state[2] = g_header[2];
+    state[3] = g_header[3];
+    state[4] = as_uint2(start_nonce + gid);
+    state[5] = as_uint2(0x0000000000000001UL);
+    state[8] = as_uint2(0x8000000000000000UL);
 	state[24] = state[23];
 	
-	KECCAK_PROCESS(state, 5, 8);
+    KECCAK_PROCESS(state, 5, 8);
     
-	for(tid=0; tid < 4; tid++)
+    for(tid=0; tid < 4; tid++)
 	{
 		barrier(CLK_LOCAL_MEM_FENCE);
-		if ( thread_id == tid-1 )
+		if ( ids[1] == tid-1 )
 			*(convert2+2) = *(ulong4_buffer); 
 		
-   		if (tid == thread_id)
+   		if (tid == ids[1])
 	   		*(ulong8_buffer)=*(convert);
 		barrier(CLK_LOCAL_MEM_FENCE);
 	
-		mix = *(uint8_buffer+(thread_id&1));
+		mix = *(uint8_buffer+(ids[1]&1));
 		init0 = *(uint_buffer);
 	
 		a=0;lane=0;
@@ -474,7 +464,7 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
 		#pragma unroll 1
 		do
 		{
-			const uchar lane_idx = hash_id2 + lane;
+			const uchar lane_idx = ids[3] + lane;
 			#pragma unroll 8
 			for (x = 0; x < 8; ++x)
 				MIX(x);
@@ -484,33 +474,33 @@ __attribute__((reqd_work_group_size(WORKSIZE, 1, 1))) __kernel void search(
 		}while(a < ACCESSES);
 	
 		barrier(CLK_LOCAL_MEM_FENCE);
-		*(uint2_buffer+thread_id) = (uint2)(fnv_reduce(mix.lo), fnv_reduce(mix.hi));
+		*(uint2_buffer+ids[1]) = (uint2)(fnv_reduce(mix.lo), fnv_reduce(mix.hi));
 	}
 	barrier(CLK_LOCAL_MEM_FENCE);
-	if ( thread_id == 3 )
+	if ( ids[1] == 3 )
 		*(convert2+2) = *(ulong4_buffer); 
 	
 	*(convert2+3)=(ulong4)(0);	
 	*(convert2+4)=*(convert2+3);
 	*(convert2+5)=*(convert2+3);
-	state[12] = as_uint2(0x0000000000000001UL);
-	state[16] = as_uint2(0x8000000000000000UL);
-	state[24] = state[23];
+    state[12] = as_uint2(0x0000000000000001UL);
+    state[16] = as_uint2(0x8000000000000000UL);
+    state[24] = state[23];
     
 	KECCAK_PROCESS(state, 12, 1);
 
-	if (get_local_id(0) == 0)
-	{
-		atomic_inc(&g_output->hashCount);
-	}
+    if (get_local_id(0) == 0)
+    {
+        atomic_inc(&g_output->hashCount);
+    }
 
 	// weird
-	if (as_ulong(as_uchar8(state[0]).s76543210) <= target)
-	{
-		atomic_inc(&g_output->abort);
-		uint slot = min(MAX_OUTPUTS - 1u, atomic_inc(&g_output->count));
-		g_output->gid[slot] = gid;
-	}
+    if (as_ulong(as_uchar8(state[0]).s76543210) <= target)
+    {
+        atomic_inc(&g_output->abort);
+        uint slot = min(MAX_OUTPUTS - 1u, atomic_inc(&g_output->count));
+        g_output->gid[slot] = gid;
+    }
 }
 
 typedef union _Node
